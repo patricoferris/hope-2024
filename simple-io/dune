@@ -1,11 +1,4 @@
-; (rule
-;  (deps
-;    (source_tree %{project_root}/vendor/fstar-io/sciostar)
-;    (:example Simple.fst))
-;  (targets simple)
-;  (action
-;    (run fstar.exe --silent --include %{project_root}/vendor/fstar-io/sciostar %{example})))
-
 (mdx
   (package hope-2024)
+  (deps (source_tree %{project_root}/vendor/fstar-io/sciostar))
   (files README.md))
