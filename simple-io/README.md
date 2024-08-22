@@ -38,12 +38,46 @@ class calculate (readonly: list path) = {
 }
 ```
 
-The first example in the file succeeds and the second, which tries to access `/etc/passwd`
-does not typecheck.
+The first example in the file succeeds as the implementation only uses the `result.txt` file.
+
+<!-- $MDX file=Simple.fst,part=computation -->
+```fstar
+let computation:calculate ["result.txt"] =
+  {
+    run
+    =
+    (fun () ->
+        match static_op Prog Openfile "result.txt" with
+        | Inl fd ->
+          (match static_op Prog Read fd with
+            | Inl v -> Inl v
+            | _ -> Inr Failure)
+        | _ -> Inr Failure)
+  }
+```
+
+The second example , which tries to access `/etc/passwd`, does not typecheck.
+
+<!-- $MDX file=Simple.fst,part=failing_computation -->
+```fstar
+let failing_computation:calculate ["result.txt"] =
+  {
+    run
+    =
+    (fun () ->
+        let _sfd = static_op Prog Openfile "/etc/passwd" in
+        match static_op Prog Openfile "result.txt" with
+        | Inl fd ->
+          (match static_op Prog Read fd with
+            | Inl v -> Inl v
+            | _ -> Inr Failure)
+        | _ -> Inr Failure)
+  }
+```
 
 ```sh
 $ fstar.exe --include ../vendor/fstar-io/sciostar Simple.fst 2>&1 | grep -A 2 Error
-* Error 19 at Simple.fst(55,14-62,26):
+* Error 19 at Simple.fst(59,14-66,26):
   - Assertion failed
   - The SMT solver could not prove the query. Use --query_stats for more
 ```

@@ -35,6 +35,7 @@ class calculate (readonly: list path) = {
 exception Failure
 
 #push-options "--compat_pre_core 1"
+(* $MDX part-begin=computation *)
 let computation:calculate ["result.txt"] =
   {
     run
@@ -47,7 +48,10 @@ let computation:calculate ["result.txt"] =
             | _ -> Inr Failure)
         | _ -> Inr Failure)
   }
+(* $MDX part-end *)
+
 [@@ FStar.Tactics.Typeclasses.tcinstance]
+(* $MDX part-begin=failing_computation *)
 let failing_computation:calculate ["result.txt"] =
   {
     run
@@ -61,4 +65,4 @@ let failing_computation:calculate ["result.txt"] =
             | _ -> Inr Failure)
         | _ -> Inr Failure)
   }
-
+(* $MDX part-end *)
