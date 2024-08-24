@@ -1,3 +1,6 @@
 [submodule "vendor/fstar-io"]
 	path = vendor/fstar-io
 	url = https://github.com/patricoferris/fstar-io
+[submodule "vendor/FStar-libs"]
+	path = vendor/FStar-libs
+	url = https://github.com/W95Psp/FStar-libs

@@ -1,0 +1,9 @@
+(mdx
+  (package hope-2024)
+  (deps
+    (source_tree %{project_root}/vendor/fstar-io/sciostar)
+    (source_tree %{project_root}/vendor/FStar-libs)
+    (source_tree %{project_root}/simple-io)
+    Json.fst
+    Jsonfail.fst)
+  (files README.md))

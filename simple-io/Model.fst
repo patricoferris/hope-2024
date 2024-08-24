@@ -1,4 +1,4 @@
-module Simple
+module Model
 module TC = FStar.Tactics.Typeclasses
 
 open FStar.List

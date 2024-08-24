@@ -1,4 +1,4 @@
-(mdx
-  (package hope-2024)
-  (deps (source_tree %{project_root}/vendor/fstar-io/sciostar))
-  (files README.md))
+; (mdx
+;   (package hope-2024)
+;   (deps (source_tree %{project_root}/vendor/fstar-io/sciostar) Model.fst)
+;   (files README.md))

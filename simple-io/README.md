@@ -76,7 +76,7 @@ let failing_computation:calculate ["result.txt"] =
 ```
 
 ```sh
-$ fstar.exe --include ../vendor/fstar-io/sciostar Simple.fst 2>&1 | grep -A 2 Error
+$ fstar.exe --include ../vendor/fstar-io/sciostar Model.fst 2>&1 | grep -A 2 Error
 * Error 19 at Simple.fst(59,14-66,26):
   - Assertion failed
   - The SMT solver could not prove the query. Use --query_stats for more
