@@ -6,16 +6,17 @@ JSON-reasoning to protect computations from reading "endangered" species.
 
 <!-- $MDX file=./Json.fst,part=is_endangered -->
 ```fstar
-let is_endangered (j : json) = contains_field_value j "rarity" (String "endangered")
+(* Following IUCN's Globally Endangered (GE) scoring *) 
+let is_endangered (j : json) = contains_field_value j "rarity" (function Int i -> i >= 3 | _ -> false)
 
 let _ = assert (is_endangered (String "foo") = false)
-let _ = assert (is_endangered (O [ "rarity", String "endangered" ]) = true)
-let _ = assert (is_endangered (A [(O [ "rarity", String "endangered" ])]) = true)
+let _ = assert (is_endangered (O [ "rarity", Int 2 ]) = false)
+let _ = assert (is_endangered (A [(O [ "rarity", Int 3])]) = true)
 
 (* https://www.iucnredlist.org/ *)
 let datamap = [
-  "iberian-lynx.geojson", O [ "rarity", String "vulnerable" ];
-  "bornean-elephant.geojson", O [ "rarity", String "endangered" ]
+  "iberian-lynx.geojson", O [ "rarity", Int 2 ];
+  "bornean-elephant.geojson", O [ "rarity", Int 3 ]
 ]
 ```
 

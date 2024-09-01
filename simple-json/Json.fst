@@ -1,6 +1,8 @@
 module Json
 
 open FStar.List
+open FStar.Real
+
 open Compiler.Model1
 open Model
 // TODO: Reuse JSON parsing library, very outdated
@@ -10,36 +12,38 @@ type json =
   | O : list (string * json) -> json
   | A : list json -> json
   | String : string -> json
-  | Number : string -> json (* For simplicity, we implement no number parsing *)
+  | Int : int -> json (* When possible we convert to Integer *)
+  | Float : string -> json (* Leaving floating point as string *)
   | Bool : bool -> json
   | Null
 
-let rec contains_assoc_key_value (j : list (string * json)) (k : string) (v : json)  = match j with
+let rec pred_assoc_key_value (j : list (string * json)) (k : string) (pred : json -> bool)  = match j with
   | [] -> false
   | (key, value) :: rest ->
-    (key = k && value = v) || contains_field_value value k v || contains_assoc_key_value rest k v
+    (key = k && pred value = true) || contains_field_value value k pred || pred_assoc_key_value rest k pred
 
-and check_json_list (l : list json) k v = match l with
+and check_json_list (l : list json) (k : string) (pred : json -> bool) = match l with
   | [] -> false
   | j :: rest ->
-    contains_field_value j k v || check_json_list rest k v
+    contains_field_value j k pred || check_json_list rest k pred
 
-and contains_field_value (j : json) (k : string) (v : json) : bool = match j with
-  | O assoc -> contains_assoc_key_value assoc k v
-  | A lst -> check_json_list lst k v
+and contains_field_value (j : json) (k : string) (pred : json -> bool) : bool = match j with
+  | O assoc -> pred_assoc_key_value assoc k pred
+  | A lst -> check_json_list lst k pred
   | _ -> false
 
 (* $MDX part-begin=is_endangered *)
-let is_endangered (j : json) = contains_field_value j "rarity" (String "endangered")
+(* Following IUCN's Globally Endangered (GE) scoring *) 
+let is_endangered (j : json) = contains_field_value j "rarity" (function Int i -> i >= 3 | _ -> false)
 
 let _ = assert (is_endangered (String "foo") = false)
-let _ = assert (is_endangered (O [ "rarity", String "endangered" ]) = true)
-let _ = assert (is_endangered (A [(O [ "rarity", String "endangered" ])]) = true)
+let _ = assert (is_endangered (O [ "rarity", Int 2 ]) = false)
+let _ = assert (is_endangered (A [(O [ "rarity", Int 3])]) = true)
 
 (* https://www.iucnredlist.org/ *)
 let datamap = [
-  "iberian-lynx.geojson", O [ "rarity", String "vulnerable" ];
-  "bornean-elephant.geojson", O [ "rarity", String "endangered" ]
+  "iberian-lynx.geojson", O [ "rarity", Int 2 ];
+  "bornean-elephant.geojson", O [ "rarity", Int 3 ]
 ]
 (* $MDX part-end *)
 
