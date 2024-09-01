@@ -3,7 +3,8 @@
   (deps
     (source_tree %{project_root}/vendor/fstar-io/sciostar)
     (source_tree %{project_root}/vendor/FStar-libs)
-    (source_tree %{project_root}/simple-io)
+    %{project_root}/simple-io/Model.fst
     Json.fst
-    Jsonfail.fst)
+    Jsonfail.fst
+    Jsonfail2.fst)
   (files README.md))

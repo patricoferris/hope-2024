@@ -68,6 +68,7 @@ class calculate_with_restrictions (readonly: list path) = {
         io_state
         (ensures (fun _ -> True))
         (requires (fun _ _ local_trace ->
+		dont_delete_any_file local_trace /\
           all_paths_are_not_endangered readonly /\
           only_open_some_files local_trace readonly))
 }

@@ -5,7 +5,7 @@ A simple example leveraging the MIO effect from [Securing Verified IO Programs A
 
 We keep the trace and runtime state the same:
 
-<!-- $MDX file=Simple.fst,part=state -->
+<!-- $MDX file=Model.fst,part=state -->
 ```fstar
 let io_state:mstate = { typ = trace; abstracts = (fun s h -> s == h) }
 ```
@@ -13,7 +13,7 @@ let io_state:mstate = { typ = trace; abstracts = (fun s h -> s == h) }
 We define a simple predicate for checking if a file was ever opened and if so
 with which filename:
 
-<!-- $MDX file=Simple.fst,part=check-files -->
+<!-- $MDX file=Model.fst,part=check-files -->
 ```fstar
 let rec only_open_some_files (ev: list event) (files: list path) =
   match ev with
@@ -26,7 +26,7 @@ let rec only_open_some_files (ev: list event) (files: list path) =
 
 And now a typeclass that we require all calculations to conform too. There isn't any particular reason this has to be typeclass here.
 
-<!-- $MDX file=Simple.fst,part=calculate -->
+<!-- $MDX file=Model.fst,part=calculate -->
 ```fstar
 class calculate (readonly: list path) = {
   run:unit
@@ -34,13 +34,15 @@ class calculate (readonly: list path) = {
         IOOps
         io_state
         (ensures (fun _ -> True))
-        (requires (fun _ _ local_trace -> only_open_some_files local_trace readonly))
+        (requires (fun _ _ local_trace -> 
+          dont_delete_any_file local_trace /\
+		  only_open_some_files local_trace readonly))
 }
 ```
 
 The first example in the file succeeds as the implementation only uses the `result.txt` file.
 
-<!-- $MDX file=Simple.fst,part=computation -->
+<!-- $MDX file=Model.fst,part=computation -->
 ```fstar
 let computation:calculate ["result.txt"] =
   {
@@ -58,7 +60,7 @@ let computation:calculate ["result.txt"] =
 
 The second example , which tries to access `/etc/passwd`, does not typecheck.
 
-<!-- $MDX file=Simple.fst,part=failing_computation -->
+<!-- $MDX file=Model.fst,part=failing_computation -->
 ```fstar
 let failing_computation:calculate ["result.txt"] =
   {
@@ -77,7 +79,7 @@ let failing_computation:calculate ["result.txt"] =
 
 ```sh
 $ fstar.exe --include ../vendor/fstar-io/sciostar Model.fst 2>&1 | grep -A 2 Error
-* Error 19 at Simple.fst(59,14-66,26):
+* Error 19 at Model.fst(68,14-75,26):
   - Assertion failed
   - The SMT solver could not prove the query. Use --query_stats for more
 ```

@@ -21,6 +21,13 @@ let rec only_open_some_files (ev: list event) (files: list path) =
   | [] -> true
 (* $MDX part-end *)
 
+(* $MDX part-begin=dont-delete *)
+let rec dont_delete_any_file (ev: list event) = match ev with
+  | EUnlink _ _ _ :: fs -> false
+  | _ :: fs -> dont_delete_any_file fs
+  | [] -> true 
+(* $MDX part-end *)
+
 (* $MDX part-begin=calculate *)
 class calculate (readonly: list path) = {
   run:unit
@@ -28,7 +35,9 @@ class calculate (readonly: list path) = {
         IOOps
         io_state
         (ensures (fun _ -> True))
-        (requires (fun _ _ local_trace -> only_open_some_files local_trace readonly))
+        (requires (fun _ _ local_trace -> 
+          dont_delete_any_file local_trace /\
+		  only_open_some_files local_trace readonly))
 }
 (* $MDX part-end *)
 

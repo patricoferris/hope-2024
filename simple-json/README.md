@@ -33,6 +33,7 @@ class calculate_with_restrictions (readonly: list path) = {
         io_state
         (ensures (fun _ -> True))
         (requires (fun _ _ local_trace ->
+		dont_delete_any_file local_trace /\
           all_paths_are_not_endangered readonly /\
           only_open_some_files local_trace readonly))
 }
@@ -62,10 +63,19 @@ let computation2:calculate_with_restrictions [ "iberian-lynx.geojson"; "bornean-
 And then compiled.
 
 ```sh
-$ fstar.exe --include ../vendor/FStar-libs/Data/Serialize --include ../vendor/FStar-libs/Data/JSON --include ../vendor/fstar-io/sciostar --include ../simple-io Json.fst 2>&1 | grep "All"
+$ fstar.exe --include ../vendor/fstar-io/sciostar --include ../simple-io Json.fst 2>&1 | grep "All"
 All verification conditions discharged successfully
-$ fstar.exe --include ../vendor/FStar-libs/Data/Serialize --include ../vendor/FStar-libs/Data/JSON --include ../vendor/fstar-io/sciostar --include ../simple-io Jsonfail.fst 2>&1  | grep -A 2 Error
+$ fstar.exe  --include ../vendor/fstar-io/sciostar --include ../simple-io Jsonfail.fst 2>&1  | grep -A 2 Error
 * Error 19 at Jsonfail.fst(14,8-22,26):
+  - Assertion failed
+  - The SMT solver could not prove the query. Use --query_stats for more
+```
+
+We can also protect against malicious (or accidental) unlinking of files!
+
+```sh
+$ fstar.exe --include ../vendor/fstar-io/sciostar --include ../simple-io Jsonfail2.fst  2>&1  | grep -A 2 Error
+* Error 19 at Jsonfail2.fst(14,5-16,24):
   - Assertion failed
   - The SMT solver could not prove the query. Use --query_stats for more
 ```
